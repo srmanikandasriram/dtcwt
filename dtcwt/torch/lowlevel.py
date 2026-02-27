@@ -51,9 +51,11 @@ def _conv_2d(X, h, stride=(1, 1)):
         raise ValueError('Filter inputs must only have height and width ' +
                          'for conv_2d')
 
-    # Move to same device as X
+    # Move to same device as X and match dtype
     if h.device != X.device:
         h = h.to(X.device)
+    if h.dtype != X.dtype:
+        h = h.to(X.dtype)
 
     # Add in the unit dimensions for conv
     # PyTorch conv2d expects [batch, ch, h, w]

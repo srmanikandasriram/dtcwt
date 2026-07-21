@@ -1,6 +1,11 @@
 Dual-Tree Complex Wavelet Transform library for Python
 ======================================================
 
+.. Note:: This is a fork of `rjw57/dtcwt <https://github.com/rjw57/dtcwt>`_ maintained
+   for research purposes, adding a PyTorch backend on top of the original NumPy/OpenCL
+   implementation. For general use, please refer to the
+   `original repository <https://github.com/rjw57/dtcwt>`_ instead.
+
 This library provides support for computing 1D, 2D and 3D dual-tree complex wavelet
 transforms and their inverse in Python.
 `Full documentation <https://dtcwt.readthedocs.org/>`_ is available online.

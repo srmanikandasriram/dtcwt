@@ -66,7 +66,7 @@ def overlay_quiver(image, vectorField, level, offset):
         thiscolour = cmap(sb / float(vectorField.shape[2])) # Select colour for this subband
         hq = quiver(g2*(2**level) + offset*(2**level), g1*(2**level) + offset*(2**level), np.real(vectorField[:,:,sb]), \
         np.imag(vectorField[:,:,sb]), color=thiscolour, scale=scalefactor*2**level)
-        quiverkey(hq, 1.05, 1.00-0.035*sb, 0, "subband " + np.str(sb), coordinates='axes', color=thiscolour, labelcolor=thiscolour, labelpos='E')
+        quiverkey(hq, 1.05, 1.00-0.035*sb, 0, "subband " + str(sb), coordinates='axes', color=thiscolour, labelcolor=thiscolour, labelpos='E')
 
     hold(False)
     return hq

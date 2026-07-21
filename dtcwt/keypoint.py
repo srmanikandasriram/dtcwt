@@ -144,7 +144,7 @@ def find_keypoints(highpass_highpasses, method=None,
     return kps
 
 def _keypoint_energy_fauqueur(subband, alpha, beta, scale):
-    return (alpha**(scale+1)) * np.power(np.maximum(0, np.product(np.abs(subband), axis=2)), beta)
+    return (alpha**(scale+1)) * np.power(np.maximum(0, np.prod(np.abs(subband), axis=2)), beta)
 
 def _keypoint_energy_bendale(subband):
     return np.min(np.abs(subband), axis=2)

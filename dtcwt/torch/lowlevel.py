@@ -8,6 +8,7 @@ except ImportError:
     _HAVE_TORCH = False
 
 from dtcwt.utils import as_column_vector
+from dtcwt.utils import reflect as _np_reflect
 import numpy as np
 
 
@@ -77,20 +78,33 @@ def _conv_2d(X, h, stride=(1, 1)):
 def _torch_pad(x, szs, mode='reflect'):
     """
     Pad tensor x using reflection padding.
-    
+
     :param x: Input tensor of shape [batch, h, w]
     :param szs: Padding sizes [[batch_pad], [h_pad], [w_pad]] where each is [before, after]
     :param mode: Padding mode ('reflect' for symmetric padding)
+
+    Uses an index-based reflection (dtcwt.utils.reflect, the same helper the numpy
+    backend uses) rather than torch.nn.functional.pad(mode='reflect'), which requires
+    the padded dimension to be strictly larger than the pad amount. At deep DTCWT
+    decomposition levels the decimated signal can shrink below the qshift filter's pad
+    size, which would make F.pad raise "Padding size should be less than the
+    corresponding input dimension" even though the decomposition is mathematically
+    valid — dtcwt.utils.reflect supports arbitrary pad sizes by wrapping the reflection
+    around as many times as needed.
     """
-    # PyTorch pad format is (left, right, top, bottom) for last 2 dimensions
-    # We only pad height (dim 1) and width (dim 2), not batch (dim 0)
     pad_h = szs[1]  # [top, bottom]
     pad_w = szs[2]  # [left, right]
-    
-    # PyTorch pad takes (left, right, top, bottom)
-    padding = (pad_w[0], pad_w[1], pad_h[0], pad_h[1])
-    
-    return F.pad(x, padding, mode=mode)
+
+    out = x
+    if pad_h[0] or pad_h[1]:
+        r = out.shape[1]
+        idx = _np_reflect(np.arange(-pad_h[0], r + pad_h[1]), -0.5, r - 0.5).astype(np.int64)
+        out = out.index_select(1, torch.from_numpy(idx).to(out.device))
+    if pad_w[0] or pad_w[1]:
+        c = out.shape[2]
+        idx = _np_reflect(np.arange(-pad_w[0], c + pad_w[1]), -0.5, c - 0.5).astype(np.int64)
+        out = out.index_select(2, torch.from_numpy(idx).to(out.device))
+    return out
 
 
 def colfilter(X, h, align=False):
